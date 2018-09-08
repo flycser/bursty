@@ -117,7 +117,7 @@ class SimpleBursty(Bursty):
 
     def get_gen_cost_mat(self, xs, means):
         """
-        compute generation cost
+        compute generation cost with poisson distribution
         :param xs:
         :param means:
         :return:
