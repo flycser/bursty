@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# @Filename : simple_model
+# @Filename : kdd_model
 # @Date : 09/04/2018 22:05:11
 # @Poject : bursty
 # @Author : FEI, hfut_jf@aliyun.com
