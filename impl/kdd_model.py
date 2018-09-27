@@ -5,7 +5,8 @@
 # @Date : 09/04/2018 22:05:11
 # @Poject : bursty
 # @Author : FEI, hfut_jf@aliyun.com
-# @Desc :
+# @Desc : Implementation of KDD model
+# using poisson distribution to calculate generation cost
 
 import numpy as np
 
@@ -16,29 +17,15 @@ from logging.config import fileConfig
 
 fileConfig('../logging.conf')
 
-class Bursty(object):
-    def __init__(self, num_state, trans_prob, scale, gamma, mean):
+class SimpleBursty(object):
+
+    def __init__(self, num_state, gamma, scale=None, trans_prob=None, mean=None):
         self.mean = mean
         self.num_state = num_state
         self.scale = scale
         self.trans_prob = trans_prob
         self.gamma = gamma
         self.logger = logging.getLogger('fei')
-
-    def optimize(self):
-        raise NotImplementedError
-
-    def trans_cost(self):
-        raise NotImplementedError
-
-    def gen_cost(self):
-        raise NotImplementedError
-
-class SimpleBursty(Bursty):
-
-    def __init__(self, num_state, gamma, scale=None, trans_prob=None, mean=None):
-
-        super(SimpleBursty, self).__init__(mean=mean, num_state=num_state, scale=scale, trans_prob=trans_prob, gamma=gamma)
         self.logger.debug('Initialize model.')
 
     def optimize(self, xs):
@@ -62,7 +49,7 @@ class SimpleBursty(Bursty):
         self.logger.debug('Mean of input frequency sequency: {:.5f}'.format(self.mean))
 
         if self.scale == None:
-            means = np.linspace(self.mean, np.max(xs), num=num_state).tolist()
+            means = np.linspace(self.mean, np.max(xs), num=self.num_state).tolist()
         else:
             assert self.scale > 1., 'Parameter scale should be larger than 1.'
             means = [self.mean*self.scale**i for i in range(self.num_state)]
@@ -70,7 +57,7 @@ class SimpleBursty(Bursty):
         self.logger.debug('Mean values at different state: {}'.format(means))
 
         gen_cost_mat = self.get_gen_cost_mat(xs, means) # store costs in different states, different batches
-        trans_cost_mat = self.get_trans_cost_mat(len_xs)
+        trans_cost_pair = self.get_trans_cost_mat(len_xs) # transition costs between different states
 
         self.costs[:, 0] = gen_cost_mat[:, 0]
 
@@ -80,7 +67,7 @@ class SimpleBursty(Bursty):
                 self.costs[cur_sidx, i] = np.inf
                 for prev_sidx in range(self.num_state):
                     gen_cost = gen_cost_mat[cur_sidx, i]
-                    trans_cost = trans_cost_mat[prev_sidx, cur_sidx]
+                    trans_cost = trans_cost_pair[prev_sidx, cur_sidx]
                     tmp_cost = gen_cost + trans_cost + self.costs[prev_sidx, i - 1]
                     if tmp_cost < self.costs[cur_sidx, i]:
                         self.costs[cur_sidx, i] = tmp_cost
