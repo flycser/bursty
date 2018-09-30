@@ -28,7 +28,7 @@ Packages: numpy(1.14.4), scipy(1.1.0).
 
 This is a demo using simple model in the KDD paper.
 
-Number of tate: 3 (See more details in impl/kdd_model.py) 
+Number of state: 3 (See more details in impl/kdd_model.py) 
 
 **input**
 
